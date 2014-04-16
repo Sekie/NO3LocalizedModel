@@ -1,0 +1,73 @@
+# depslib dependency file v1.0
+1012429380 source:v:\tcodd\no3 analysis\codeblocks\no3multistate\mathutil.cpp
+	"msdef.h"
+	<math.h>
+	"mathutil.h"
+
+862700084 v:\tcodd\no3 analysis\codeblocks\no3multistate\msdef.h
+
+862700084 v:\tcodd\no3 analysis\codeblocks\no3multistate\mathutil.h
+
+1369947849 source:v:\tcodd\no3 analysis\codeblocks\no3multistate\source.cpp
+	"msdef.h"
+	"mathutil.h"
+	<malloc.h>
+	<math.h>
+	"model.h"
+
+947204612 v:\tcodd\no3 analysis\codeblocks\no3multistate\model.h
+
+1012429380 source:x:\tcodd\no3 analysis\codeblocks\no3multistate\mathutil.cpp
+	"msdef.h"
+	<math.h>
+	"mathutil.h"
+
+862700084 x:\tcodd\no3 analysis\codeblocks\no3multistate\msdef.h
+
+862700084 x:\tcodd\no3 analysis\codeblocks\no3multistate\mathutil.h
+
+1012429380 source:x:\tcodd\no3 analysis\no3multistatesvmodel\mathutil.cpp
+	"msdef.h"
+	<math.h>
+	"mathutil.h"
+
+862700084 x:\tcodd\no3 analysis\no3multistatesvmodel\msdef.h
+
+862700084 x:\tcodd\no3 analysis\no3multistatesvmodel\mathutil.h
+
+1373661109 source:x:\tcodd\no3 analysis\no3multistatesvmodel\no3_fourfold_beta.cpp
+	"msdef.h"
+	"mathutil.h"
+	<malloc.h>
+	<math.h>
+	"model.h"
+
+947204612 x:\tcodd\no3 analysis\no3multistatesvmodel\model.h
+
+1373820051 source:c:\users\terrance\documents\workstuff\no3fourfoldmodel\no3fourfold\mathutil.cpp
+	"msdef.h"
+	<math.h>
+	"mathutil.h"
+
+1373820051 c:\users\terrance\documents\workstuff\no3fourfoldmodel\no3fourfold\msdef.h
+
+1373820051 c:\users\terrance\documents\workstuff\no3fourfoldmodel\no3fourfold\mathutil.h
+
+1373833149 source:c:\users\terrance\documents\workstuff\no3fourfoldmodel\no3fourfold\no3_fourfold_beta.cpp
+	"msdef.h"
+	"mathutil.h"
+	<malloc.h>
+	<math.h>
+	"model.h"
+
+1373820051 c:\users\terrance\documents\workstuff\no3fourfoldmodel\no3fourfold\model.h
+
+1012429380 source:c:\no3multistatemodel\mathutil.cpp
+	"msdef.h"
+	<math.h>
+	"mathutil.h"
+
+862700084 c:\no3multistatemodel\msdef.h
+
+862700084 c:\no3multistatemodel\mathutil.h
+
