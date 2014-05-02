@@ -31,9 +31,9 @@ using std::complex;
 #define LOCK_CONSTANTS   1
 
 typedef struct {
-int WF;
-int K;
 int N;
+int K;
+int WF;
 } idx;
 
 /*
@@ -365,24 +365,21 @@ char* ConName( UINT nStateType, UINT nConst )
 {
 	switch(nStateType)
 	{
-		//FROM MWC
 	case 0:
 		switch(nConst)
 		{
-			case 0 : return "CA1+2CE/3";  //CA1+2CE/3
-			case 1 : return "CA1-2CE/3";  //CA1-2CE/3
-			case 2 : return "BA1+2BE/3";  //BA1+2BE/3
-			case 3 : return "BA1-2BE/3";  //BA1-2BE/3
-			case 4 : return "CA2"; 
-			case 5 : return "BA2";
-			case 6 : return "dE1/3";  //dE1/3
-			case 7 : return "dE2"; //dE2
-			case 8 : return "h1A1E+h1EE/3"; //h1A1E+h1EE/3
-			case 9 : return "h1A1E-h1EE/3"; //h1A1E-h1EE/3
-			case 10 : return "h2A2E/rad2"; //h2A2E/rad2
-			case 11 : return "h1A2E/rad2";  //h1A2E/rad2
-			default : /* Non of the defined*/
-			return "Constant";
+			case 0 : return "C:A1";
+			case 1 : return "B:A1";
+			case 2 : return "C:A2";
+			case 3 : return "B:A2";
+			case 4 : return "C:E";
+			case 5 : return "B:E";
+			case 6 : return "h1:A1_E";
+			case 7 : return "h1:A2_E";
+			case 8 : return "h1:E_E";
+			case 9 : return "dE1";
+			case 10 : return "dE2";
+			default : return "Constant";
 		}//end switch nConst
 	default : return "State"; //None of the defined
 	}//end switch nStateType
@@ -399,29 +396,12 @@ void InitCo( UINT nStateType, double* pdConst )
 	switch (nStateType)
 	{
 	case 0 :
-		pdConst[0] = 0.2286274;/* Ground State A*/
-		pdConst[1] = 0.4585445;/* Ground State B*/
-		pdConst[2] = 0.0;/* Ground State C*/
-		pdConst[6] = 1.047e-6;
-		pdConst[7] = -2.062e-6;
-		pdConst[8] = 1.0880e-6;
-		pdConst[11] = 0.00074;
-		return;
-
-	case 1 :
-		pdConst[0] = 0.21;//Bzz  A1
-		pdConst[1] = 0.43;//Byy  A1
-		pdConst[2] = 0.43;//Bxx A1
-		pdConst[3] = 0.21;//Bzz  A2
-		pdConst[4] = 0.43;//Byy  A2
-		pdConst[5] = 0.43;//Bxx A2
-		pdConst[6] = 0.21;//Bzz  E
-		pdConst[7] = 0.43;//Byy  E
-		pdConst[8] = 0.43;//Bxx E
-		//for(int i = 9; i < ConNum( nStateType ); i++)
-		//{
-		//	pdConst[i] = 1.0;
-		//}
+		pdConst[0] = 0.21;//C_A1
+		pdConst[1] = 0.43;//B_A1
+		pdConst[2] = 0.21;//C_A2
+		pdConst[3] = 0.43;//B_A2
+		pdConst[4] = 0.21;//C_E
+		pdConst[5] = 0.43;//B_E
 		return;
 	}
 }
@@ -513,8 +493,9 @@ char* QNName( UINT nStateType, UINT nQNumb )
 		switch(nQNumb)
 		{
 		case 0 : return "J";
-		case 1 : return "WF";
+		case 1 : return "N";
 		case 2 : return "K";
+		case 3 : return "WF";
 		default : return "QN";/* Non of the defined*/
 		}
 	}
@@ -652,21 +633,20 @@ void Hamilt( UINT nStateType,
 	  double Cp,Cm,Bp,Bm,C2,B2,E1,E2,hp,hm,h2,h1,hrot;
 	  std::complex<double> G1o2,Gn1o6,G7o6,Gn2o3,G2o3,Gn1o3,G1o3,Gn1o1;
 	  std::complex<double> GC1o2,GCn1o6,GC7o6,GCn2o3,GC2o3,GCn1o3,GC1o3,GCn1o1;
-	  Cp = pdConst[0]; //CA1+2CE/3
-	  Cm = pdConst[1]; //CA1-2CE/3
-	  Bp = pdConst[2]; //BA1+2BE/3
-	  Bm = pdConst[3]; //BA1-2BE/3
-	  C2 = pdConst[4]; //CA2
-	  B2 = pdConst[5]; //BA2
-	  E1 = pdConst[6]; //dE1/3
-	  E2 = pdConst[7]; //dE2
-	  hp = pdConst[8]; //h1A1E+h1EE/3
-	  hm = pdConst[9]; //h1A1E-h1EE/3
-	  h2 = pdConst[10]; //h2A2E/rad2
-	  h1 = pdConst[11]; //h1A2E/rad2
-	  hrot = pdConst[12]; //h1A1E/rad2
+	  CA1 = pdConst[0]; 
+	  BA1 = pdConst[1]; 
+	  CA2 = pdConst[2]; 
+	  BA2 = pdConst[3]; 
+	  CE = pdConst[4]; 
+	  BE = pdConst[5]; 
+	  h1A1E = pdConst[6]; 
+	  h1A2E = pdConst[7]; 
+	  h1EE = pdConst[8]; 
+	  E1 = pdConst[9]; 
+	  E2 = pdConst[10]; 
 
-	  /*Ghost Operator Parameters*/
+	  /*Ghost Operator*/
+	  /* G(host)(C)(onjugate)(n)(egative)Xo(ver)Y */
 	  /* Parts in N-^2 */
 	  std::complex<double> A1o2(0, PI_CONST/2);
 	  G1o2=exp(A1o2);
@@ -739,15 +719,15 @@ void Hamilt( UINT nStateType,
 
 					if(WF==0)
 					{
-						ppdH[ii][jjj] = E1;
+						ppdH[ii][jjj] = E1/3;
 					}
 					if(WF==2)
 					{
-						ppdH[ii][jjj] = E1;
+						ppdH[ii][jjj] = E1/3;
 					}
 					if(WF==3)
 					{
-						ppdH[ii][jjj] = E1;
+						ppdH[ii][jjj] = E1/3;
 					}
 				}//End jjj loop
 			}//End WF = 0
@@ -765,15 +745,15 @@ void Hamilt( UINT nStateType,
 
 					if(WF==0)
 					{
-						ppdH[ii][jjj] = E1;
+						ppdH[ii][jjj] = E1/3;
 					}
 					if(WF==2)
 					{
-						ppdH[ii][jjj] = E1;
+						ppdH[ii][jjj] = E1/3;
 					}
 					if(WF==3)
 					{
-						ppdH[ii][jjj] = E1;
+						ppdH[ii][jjj] = E1/3;
 					}
 				}//End jjj loop
 			}//End WF = 2
@@ -791,15 +771,15 @@ void Hamilt( UINT nStateType,
 
 					if(WF==0)
 					{
-						ppdH[ii][jjj] = E1;
+						ppdH[ii][jjj] = E1/3;
 					}
 					if(WF==2)
 					{
-						ppdH[ii][jjj] = E1;
+						ppdH[ii][jjj] = E1/3;
 					}
 					if(WF==3)
 					{
-						ppdH[ii][jjj] = E1;
+						ppdH[ii][jjj] = E1/3;
 					}
 				}//End jjj loop
 			}//End WF = 3
@@ -835,124 +815,241 @@ void Hamilt( UINT nStateType,
 			ppnQNm[i][0] = WF;
 			ppnQNm[i][1] = K;
 
-			if(WF == 0)// First well
+/* Terms Linear in [N+,N-] */
+
+			if(WF==0)
 			{
-				ppdH[i][i] += Bp * (2 * N * (N + 1) - K * K) // Terms linear in [N+,N-]+
-					; 
-				ppdH[i][i+2*Ks] += Bm * (2 * N * (N + 1) - K * K)
-					;
-				ppdH[i][i+3*Ks] += Bm * (2 * N * (N + 1) - K * K)
-					;
-
-				if (K >= -N + 2) /*NOTE: Need to check if hrot terms are correct*/
+				for(int o = WF, o < 4, o++)
 				{
-					/*Terms linear in N+^2*/
-					ppdH[i][i-2] += hp * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1)); 
-					ppdH[i][i-2+Ks] += h2 * GC1o2 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1));
-					ppdH[i][i-2+2*Ks] += hm * GCn1o3 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1));
-					ppdH[i][i-2+3*Ks] += hm * GC1o3 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1));
-				}
-				if (K <= N - 2)
-				{
-					ppdH[i][i+2] += hp * sqrt(N * (N + 1) - (K+1) * (K+2)) * sqrt(N * (N + 1) - K * (K+1)) //Terms linear in N-^2
-						+ Cp * (K + 2) * (K + 1); //Terms linear in Nz^2
-					ppdH[i][i+2+Ks] += h2 * G1o2 * sqrt(N * (N + 1) - (K+1) * (K+2)) * sqrt(N * (N + 1) - K * (K+1))
-						;
-					ppdH[i][i+2+2*Ks] += hm * Gn1o3 * sqrt(N * (N + 1) - (K+1) * (K+2)) * sqrt(N * (N + 1) - K * (K+1))
-						+ Cm * (K + 2) * (K + 1);
-					ppdH[i][i+2+3*Ks] += hm * G1o3 * sqrt(N * (N + 1) - (K+1) * (K+2)) * sqrt(N * (N + 1) - K * (K+1))
-						+ Cm * (K + 2) * (K + 1);
-
-					/*Terms symmetric to terms linear in N+^2*/
-					ppdH[i][i+2] += hp * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1));
-					ppdH[i][i+2+Ks] += h2 * hrot * sqrt(N * (N + 1) - (K+1) * (K+2)) * sqrt(N * (N + 1) - K * (K+1));
-					ppdH[i][i+2+2*Ks] += hm * hrot * sqrt(N * (N + 1) - (K+1) * (K+2)) * sqrt(N * (N + 1) - K * (K+1))
-						+ Cm * (K + 2) * (K + 1);
-					ppdH[i][i+2+3*Ks] += hm * hrot * sqrt(N * (N + 1) - (K+1) * (K+2)) * sqrt(N * (N + 1) - K * (K+1))
-						+ Cm * (K + 2) * (K + 1);
-				}
-			}//End WF = 0 (First well)
-
-			if(WF == 1)// A2 Symmetry, ([i][i] means the WF=2 x WF=2 block now)
+					int j=lReverseIndex(J, N, K, o);
+					if(o==0) // S1
+					{
+						ppdH[i][j] += ((BA1 + 2 * BE) / 3) * (2 * N * (N + 1) - K * K);
+					}
+					if(o==2) // S2
+					{
+						ppdH[i][j] += ((BA1 - BE) / 3) * (2 * N * (N + 1) - K * K);
+					}
+					if(o==3) // S3	
+					{
+						ppdH[i][j] += ((BA1 - BE) / 3) * (2 * N * (N + 1) - K * K);
+					}
+				}// End o loop
+			} //End WF==0
+			if(WF==1)
 			{
-				ppdH[i][i] += B2 * (2 * N * (N + 1) - K * K); // Terms linear in [N+,N-]+ 
-
-				if (K >= -N + 2) 
-				{
-					ppdH[i][i-2-Ks] += h2 * GC1o2 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1)); //Terms linear in N+^2
-					ppdH[i][i-2+Ks] += h1 * GCn1o6 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1));
-					ppdH[i][i-2+2*Ks] += hm * GC7o6 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1));
-				}
-				if (K <= N - 2)
-				{
-					ppdH[i][i+2-Ks] += h2 * G1o2 * sqrt(N * (N + 1) - (K+1) * (K+2)) * sqrt(N * (N + 1) - K * (K+1)) //Terms linear in N-^2
-						; //Terms linear in Nz^2
-					ppdH[i][i+2] +=
-						C2  * (K + 2) * (K + 1);
-					ppdH[i][i+2+Ks] += h1 * Gn1o6 * sqrt(N * (N + 1) - (K+1) * (K+2)) * sqrt(N * (N + 1) - K * (K+1))
-						;
-					ppdH[i][i+2+2*Ks] += hm * G7o6 * sqrt(N * (N + 1) - (K+1) * (K+2)) * sqrt(N * (N + 1) - K * (K+1))
-						;
-				}
-			}//End WF=1 (A2 Symmetry)
-
-			if(WF == 2)// Second well ([i][i] means the WF=3 x WF=3 block now)
+				ppdH[i][i] += BA2 * (2 * N * (N + 1) - K * K);
+			} //End WF==1
+			if(WF==2)
 			{
-				ppdH[i][i-2*Ks] += Bm * (2 * N * (N + 1) - K * K) // Terms linear in [N+,N-]+
-					; 
-				ppdH[i][i] += Bp * (2 * N * (N + 1) - K * K)
-					;
-				ppdH[i][i+Ks] += Bm * (2 * N * (N + 1) - K * K)
-					;
-
-				if (K >= -N + 2) /*NOTE: Need to check if hrot terms are correct*/
+				for(int o = WF, o < 4, o++)
 				{
-					ppdH[i][i-2-2*Ks] += hm * GCn1o3 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1)); //Terms linear in N+^2
-					ppdH[i][i-2-Ks] += h1 * GCn1o6 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1));
-					ppdH[i][i-2] += hp * GCn2o3 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1));
-					ppdH[i][i-2+Ks] += hm * GCn1o1 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1));
-				}
-				if (K <= N - 2)
-				{
-					ppdH[i][i+2-2*Ks] += hm * Gn1o3 * sqrt(N * (N + 1) - (K+1) * (K+2)) * sqrt(N * (N + 1) - K * (K+1)) //Terms linear in N-^2
-						+ Cm * (K + 2) * (K + 1); //Terms linear in Nz^2
-					ppdH[i][i+2-Ks] += h1 * Gn1o6 * sqrt(N * (N + 1) - (K+1) * (K+2)) * sqrt(N * (N + 1) - K * (K+1))
-						;
-					ppdH[i][i+2] += hp * Gn2o3 * sqrt(N * (N + 1) - (K+1) * (K+2)) * sqrt(N * (N + 1) - K * (K+1))
-						+ Cp * (K + 2) * (K + 1);
-					ppdH[i][i+2+Ks] += hm * Gn1o1 * sqrt(N * (N + 1) - (K+1) * (K+2)) * sqrt(N * (N + 1) - K * (K+1))
-						+ Cm * (K + 2) * (K + 1);
-				}
-			}//End WF = 2 (Second well)
-
-			if(WF == 3)// Third well ([i][i] means WF=3 x WF=3 block now)
+					int j=lReverseIndex(J, N, K, o);
+					if(o==2) // S2
+					{
+						ppdH[i][j] += ((BA1 + 2 * BE) / 3) * (2 * N * (N + 1) - K * K);
+					}
+					if(o==3) // S3	
+					{
+						ppdH[i][j] += ((BA1 - BE) / 3) * (2 * N * (N + 1) - K * K);
+					}
+				}// End o loop
+			} //End WF==2
+			if(WF==3)
 			{
-				ppdH[i][i-3*Ks] += Bm * (2 * N * (N + 1) - K * K) // Terms linear in [N+,N-]+
-					; 
-				ppdH[i][i-Ks] += Bm * (2 * N * (N + 1) - K * K)
-					;
-				ppdH[i][i] += Bp * (2 * N * (N + 1) - K * K)
-					;
+				ppdH[i][i] += ((BA1 + 2 * BE) / 3) * (2 * N * (N + 1) - K * K);
 
-				if (K >= -N + 2) /*NOTE: Need to check if hrot terms are correct*/
+			} //End WF==3
+
+/* Terms linear in N+^2 and Nz^2 (Respectively) */
+
+			if(WF==0) // S1
+			{
+				for(int o = WF, o < 4, o++)
 				{
-					ppdH[i][i-2-3*Ks] += hm * GC1o3 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1)); //Terms linear in N+^2
-					ppdH[i][i-2-2*Ks] += hm * GC7o6 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1));
-					ppdH[i][i-2-Ks] += hm * GCn1o1 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1));
-					ppdH[i][i-2] += hp * GC2o3 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1));
-				}
-				if (K <= N - 2)
+					int j=lReverseIndex(J, N, K-2, o);
+					if(j => o * Ks) // Element is in intended WF block
+					{
+						if(o==0) // S1
+						{
+							ppdH[i][j] += ( 2 * h1A1E + h1EE ) / 3 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1)) //N+^2
+								( CA1 + 2 * CE) / 3 * (K + 2) * (K + 1); //Nz^2
+							ppdH[j][i] += ppdH[i][j];
+						}
+						if(o==1) // A2
+						{
+							ppdH[i][j] += h2A2E / sqrt(2) * GC1o2 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1))
+								;
+							ppdH[j][i] += ppdH[i][j];
+						}
+						if(o==2) // S2
+						{
+							ppdH[i][j] += ( ( h1A1E - h1EE ) / 3 ) * GCn1o3 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1))
+								( CA1 - CE ) * (K + 2) * (K + 1);
+							ppdH[j][i] += ppdH[i][j];
+						}
+						if(o==3) // S3
+						{
+							ppdH[i][j] += ( ( h1A1E - h1EE ) / 3 ) * GC1o3 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1))
+								( CA1 - CE ) * (K + 2) * (K + 1);
+							ppdH[j][i] += ppdH[i][j];
+						}
+					} // End j conditional
+				}// End o loop
+			} //End WF==0
+			if(WF==1) // A2
+			{
+				for(int o = WF, o < 4, o++)
 				{
-					ppdH[i][i+2-3*Ks] += hm * G1o3 * sqrt(N * (N + 1) - (K+1) * (K+2)) * sqrt(N * (N + 1) - K * (K+1)) //Terms linear in N-^2
-						+ Cm * (K + 2) * (K + 1); //Terms linear in Nz^2
-					ppdH[i][i+2-2*Ks] += hm * G7o6 * sqrt(N * (N + 1) - (K+1) * (K+2)) * sqrt(N * (N + 1) - K * (K+1))
-						;
-					ppdH[i][i+2-Ks] += hm * Gn1o1 * sqrt(N * (N + 1) - (K+1) * (K+2)) * sqrt(N * (N + 1) - K * (K+1))
-						+ Cm * (K + 2) * (K + 1);
-					ppdH[i][i+2] += hp * G2o3 * sqrt(N * (N + 1) - (K+1) * (K+2)) * sqrt(N * (N + 1) - K * (K+1))
-						+ Cp * (K + 2) * (K + 1);
-				}
-			}//End WF = 3 (Third well)
+					int j=lReverseIndex(J, N, K-2, o);
+					if(j => o * Ks) // Element is in intended WF block
+					{
+						if(o==1) // A2
+						{
+							ppdH[i][j] += 
+								CA2 * (K + 2) * (K + 1);
+							ppdH[j][i] += ppdH[i][j]
+						if(o==2) // S2
+						{
+							ppdH[i][j] += ( h1A2E / sqrt(2) ) * GCn1o6 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1))
+								;
+							ppdH[j][i] += ppdH[i][j];
+						}
+						if(o==3) // S3
+						{
+							ppdH[i][j] += ( h1A2E / sqrt(2) ) * GC7o6 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1))
+								;
+							ppdH[j][i] += ppdH[i][j];
+						}
+					} // End j conditional
+				}// End o loop
+			} //End WF==1
+			if(WF==2) // S2
+			{
+				for(int o = WF, o < 4, o++)
+				{
+					int j=lReverseIndex(J, N, K-2, o);
+					if(j => o * Ks) // Element is in intended WF block
+					{
+						if(o==2) // S2
+						{
+							ppdH[i][j] += ( 2 * h1A1E + h1EE ) / 3 * GCn2o3 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1))
+								( CA1 + 2 * CE) / 3 * (K + 2) * (K + 1);
+							ppdH[j][i] += ppdH[i][j];
+						}
+						if(o==3) // S3
+						{
+							ppdH[i][j] += ( ( h1A1E - h1EE ) / 3 ) * GCn1o1 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1))
+								( CA1 - CE ) * (K + 2) * (K + 1);
+							ppdH[j][i] += ppdH[i][j];
+						}
+					} // End j conditional
+				}// End o loop
+			} //End WF==2
+			if(WF==3) // S3
+			{
+				for(int o = WF, o < 4, o++)
+				{
+					int j=lReverseIndex(J, N, K-2, o);
+					if(j => o * Ks) // Element is in intended WF block
+					{
+						if(o==3) // S3
+						{
+							ppdH[i][j] += ( 2 * h1A1E + h1EE ) / 3 * GC2o3 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1))
+								( CA1 + 2 * CE) / 3 * (K + 2) * (K + 1);
+							ppdH[j][i] += ppdH[i][j];
+						}
+					} // End j conditional
+				}// End o loop
+			} //End WF==3
+
+/* Terms Linear in N-^2*/
+
+			if(WF==0)
+			{
+				for(int o = WF, o < 4, o++)
+				{
+					int j=lReverseIndex(J, N, K+2, o);
+					if(j < (o + 1) * Ks) // Element is in intended WF block
+					{
+						if(o==0) // S1
+						{
+							ppdH[i][j] += ( 2 * h1A1E + h1EE ) / 3 * sqrt(N * (N + 1) - (K + 1) * (K + 2)) * sqrt(N * (N + 1) - K * (K + 1));
+							ppdH[j][i] += ppdH[i][j];
+						}
+						if(o==1) // A2
+						{
+							ppdH[i][j] += h2A2E / sqrt(2) * G1o2 * sqrt(N * (N + 1) - (K + 1) * (K + 2)) * sqrt(N * (N + 1) - K * (K + 1));
+							ppdH[j][i] += ppdH[i][j];
+						}
+						if(o==2) // S2
+						{
+							ppdH[i][j] += ( ( h1A1E - h1EE ) / 3 ) * Gn1o3 * sqrt(N * (N + 1) - (K + 1) * (K + 2)) * sqrt(N * (N + 1) - K * (K + 1));
+							ppdH[j][i] += ppdH[i][j];
+						}
+						if(o==3) // S3
+						{
+							ppdH[i][j] += ( ( h1A1E - h1EE ) / 3 ) * G1o3 * sqrt(N * (N + 1) - (K + 1) * (K + 2)) * sqrt(N * (N + 1) - K * (K + 1));
+							ppdH[j][i] += ppdH[i][j];
+						}
+					} // End j conditional
+				}// End o loop
+			} //End WF==0
+			if(WF==1)
+			{
+				for(int o = WF, o < 4, o++)
+				{
+					int j=lReverseIndex(J, N, K+2, o);
+					if(j < (o + 1) * Ks) // Element is in intended WF block
+					{
+						if(o==2) // S2
+						{
+							ppdH[i][j] += ( h1A2E / sqrt(2) ) * Gn1o6 * sqrt(N * (N + 1) - (K + 1) * (K + 2)) * sqrt(N * (N + 1) - K * (K + 1));
+							ppdH[j][i] += ppdH[i][j];
+						}
+						if(o==3) // S3
+						{
+							ppdH[i][j] += ( h1A2E / sqrt(2) ) * G7o6 * sqrt(N * (N + 1) - (K + 1) * (K + 2)) * sqrt(N * (N + 1) - K * (K + 1));
+							ppdH[j][i] += ppdH[i][j];
+						}
+					} // End j conditional
+				}// End o loop
+			} //End WF==1
+			if(WF==2)
+			{
+				for(int o = WF, o < 4, o++)
+				{
+					int j=lReverseIndex(J, N, K+2, o);
+					if(j < (o + 1) * Ks) // Element is in intended WF block
+					{
+						if(o==2) // S2
+						{
+							ppdH[i][j] += ( 2 * h1A1E + h1EE ) / 3 * Gn2o3 * sqrt(N * (N + 1) - (K + 1) * (K + 2)) * sqrt(N * (N + 1) - K * (K + 1));
+							ppdH[j][i] += ppdH[i][j];
+						}
+						if(o==3) // S3
+						{
+							ppdH[i][j] += ( ( h1A1E - h1EE ) / 3 ) * Gn1o1 * sqrt(N * (N + 1) - (K + 1) * (K + 2)) * sqrt(N * (N + 1) - K * (K + 1));
+							ppdH[j][i] += ppdH[i][j];
+						}
+					} // End j conditional
+				}// End o loop
+			} //End WF==2
+			if(WF==3)
+			{
+				for(int o = WF, o < 4, o++)
+				{
+					int j=lReverseIndex(J, N, K+2, o);
+					if(j < (o + 1) * Ks) // Element is in intended WF block
+					{
+						if(o==3) // S3
+						{
+							ppdH[i][j] += ( 2 * h1A1E + h1EE ) / 3 * G2o3 * sqrt(N * (N + 1) - (K + 1) * (K + 2)) * sqrt(N * (N + 1) - K * (K + 1));
+							ppdH[j][i] += ppdH[i][j];
+						}
+					} // End j conditional
+				}// End o loop
+			} //End WF==3
 		}//end Hamiltonian for loop
 	}//end if StateType == 0
 	return;
