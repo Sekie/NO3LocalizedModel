@@ -630,7 +630,7 @@ void Hamilt( UINT nStateType,
 	  int N,K,WF,Ks,DIM;
 	  idx QN;
 	  double J;
-	  double Cp,Cm,Bp,Bm,C2,B2,E1,E2,hp,hm,h2,h1,hrot;
+	  double CA1, BA1, CA2, BA2, CE, BE, h1A1E, h1A2E, h1EE, E1, E2;
 	  std::complex<double> G1o2,Gn1o6,G7o6,Gn2o3,G2o3,Gn1o3,G1o3,Gn1o1;
 	  std::complex<double> GC1o2,GCn1o6,GC7o6,GCn2o3,GC2o3,GCn1o3,GC1o3,GCn1o1;
 	  CA1 = pdConst[0]; 
@@ -819,9 +819,9 @@ void Hamilt( UINT nStateType,
 
 			if(WF==0)
 			{
-				for(int o = WF, o < 4, o++)
+				for(int o = WF; o < 4; o++)
 				{
-					int j=lReverseIndex(J, N, K, o);
+					int j=lReverseIndex(pnQNd, N, K, o);
 					if(o==0) // S1
 					{
 						ppdH[i][j] += ((BA1 + 2 * BE) / 3) * (2 * N * (N + 1) - K * K);
@@ -842,9 +842,9 @@ void Hamilt( UINT nStateType,
 			} //End WF==1
 			if(WF==2)
 			{
-				for(int o = WF, o < 4, o++)
+				for(int o = WF; o < 4; o++)
 				{
-					int j=lReverseIndex(J, N, K, o);
+					int j=lReverseIndex(pnQNd, N, K, o);
 					if(o==2) // S2
 					{
 						ppdH[i][j] += ((BA1 + 2 * BE) / 3) * (2 * N * (N + 1) - K * K);
@@ -865,10 +865,10 @@ void Hamilt( UINT nStateType,
 
 			if(WF==0) // S1
 			{
-				for(int o = WF, o < 4, o++)
+				for(int o = WF; o < 4; o++)
 				{
-					int j=lReverseIndex(J, N, K-2, o);
-					if(j => o * Ks) // Element is in intended WF block
+					int j=lReverseIndex(pnQNd, N, K-2, o);
+					if(j >= o * Ks) // Element is in intended WF block
 					{
 						if(o==0) // S1
 						{
@@ -878,7 +878,7 @@ void Hamilt( UINT nStateType,
 						}
 						if(o==1) // A2
 						{
-							ppdH[i][j] += h2A2E / sqrt(2) * GC1o2 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1))
+							ppdH[i][j] += h1A2E / sqrt(2) * GC1o2 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1))
 								;
 							ppdH[j][i] += ppdH[i][j];
 						}
@@ -899,16 +899,16 @@ void Hamilt( UINT nStateType,
 			} //End WF==0
 			if(WF==1) // A2
 			{
-				for(int o = WF, o < 4, o++)
+				for(int o = WF; o < 4; o++)
 				{
-					int j=lReverseIndex(J, N, K-2, o);
-					if(j => o * Ks) // Element is in intended WF block
+					int j=lReverseIndex(pnQNd, N, K-2, o);
+					if(j >= o * Ks) // Element is in intended WF block
 					{
 						if(o==1) // A2
 						{
 							ppdH[i][j] += 
 								CA2 * (K + 2) * (K + 1);
-							ppdH[j][i] += ppdH[i][j]
+							ppdH[j][i] += ppdH[i][j];
 						if(o==2) // S2
 						{
 							ppdH[i][j] += ( h1A2E / sqrt(2) ) * GCn1o6 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1))
@@ -926,10 +926,10 @@ void Hamilt( UINT nStateType,
 			} //End WF==1
 			if(WF==2) // S2
 			{
-				for(int o = WF, o < 4, o++)
+				for(int o = WF; o < 4; o++)
 				{
-					int j=lReverseIndex(J, N, K-2, o);
-					if(j => o * Ks) // Element is in intended WF block
+					int j=lReverseIndex(pnQNd, N, K-2, o);
+					if(j >= o * Ks) // Element is in intended WF block
 					{
 						if(o==2) // S2
 						{
@@ -948,10 +948,10 @@ void Hamilt( UINT nStateType,
 			} //End WF==2
 			if(WF==3) // S3
 			{
-				for(int o = WF, o < 4, o++)
+				for(int o = WF; o < 4; o++)
 				{
-					int j=lReverseIndex(J, N, K-2, o);
-					if(j => o * Ks) // Element is in intended WF block
+					int j=lReverseIndex(pnQNd, N, K-2, o);
+					if(j >= o * Ks) // Element is in intended WF block
 					{
 						if(o==3) // S3
 						{
@@ -967,9 +967,9 @@ void Hamilt( UINT nStateType,
 
 			if(WF==0)
 			{
-				for(int o = WF, o < 4, o++)
+				for(int o = WF; o < 4; o++)
 				{
-					int j=lReverseIndex(J, N, K+2, o);
+					int j=lReverseIndex(pnQNd, N, K+2, o);
 					if(j < (o + 1) * Ks) // Element is in intended WF block
 					{
 						if(o==0) // S1
@@ -979,7 +979,7 @@ void Hamilt( UINT nStateType,
 						}
 						if(o==1) // A2
 						{
-							ppdH[i][j] += h2A2E / sqrt(2) * G1o2 * sqrt(N * (N + 1) - (K + 1) * (K + 2)) * sqrt(N * (N + 1) - K * (K + 1));
+							ppdH[i][j] += h1A2E / sqrt(2) * G1o2 * sqrt(N * (N + 1) - (K + 1) * (K + 2)) * sqrt(N * (N + 1) - K * (K + 1));
 							ppdH[j][i] += ppdH[i][j];
 						}
 						if(o==2) // S2
@@ -997,9 +997,9 @@ void Hamilt( UINT nStateType,
 			} //End WF==0
 			if(WF==1)
 			{
-				for(int o = WF, o < 4, o++)
+				for(int o = WF; o < 4; o++)
 				{
-					int j=lReverseIndex(J, N, K+2, o);
+					int j=lReverseIndex(pnQNd, N, K+2, o);
 					if(j < (o + 1) * Ks) // Element is in intended WF block
 					{
 						if(o==2) // S2
@@ -1017,9 +1017,9 @@ void Hamilt( UINT nStateType,
 			} //End WF==1
 			if(WF==2)
 			{
-				for(int o = WF, o < 4, o++)
+				for(int o = WF; o < 4; o++)
 				{
-					int j=lReverseIndex(J, N, K+2, o);
+					int j=lReverseIndex(pnQNd, N, K+2, o);
 					if(j < (o + 1) * Ks) // Element is in intended WF block
 					{
 						if(o==2) // S2
@@ -1037,9 +1037,9 @@ void Hamilt( UINT nStateType,
 			} //End WF==2
 			if(WF==3)
 			{
-				for(int o = WF, o < 4, o++)
+				for(int o = WF; o < 4; o++)
 				{
-					int j=lReverseIndex(J, N, K+2, o);
+					int j=lReverseIndex(pnQNd, N, K+2, o);
 					if(j < (o + 1) * Ks) // Element is in intended WF block
 					{
 						if(o==3) // S3
