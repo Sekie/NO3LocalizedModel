@@ -873,7 +873,7 @@ void Hamilt( UINT nStateType,
 						if(o==0) // S1
 						{
 							ppdH[i][j] += ( 2 * h1A1E + h1EE ) / 3 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1)) //N+^2
-								( CA1 + 2 * CE) / 3 * (K + 2) * (K + 1); //Nz^2
+								+ ( CA1 + 2 * CE) / 3 * (K + 2) * (K + 1); //Nz^2
 							ppdH[j][i] += ppdH[i][j];
 						}
 						if(o==1) // A2
@@ -885,13 +885,13 @@ void Hamilt( UINT nStateType,
 						if(o==2) // S2
 						{
 							ppdH[i][j] += ( ( h1A1E - h1EE ) / 3 ) * GCn1o3 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1))
-								( CA1 - CE ) * (K + 2) * (K + 1);
+								+ ( CA1 - CE ) * (K + 2) * (K + 1);
 							ppdH[j][i] += ppdH[i][j];
 						}
 						if(o==3) // S3
 						{
 							ppdH[i][j] += ( ( h1A1E - h1EE ) / 3 ) * GC1o3 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1))
-								( CA1 - CE ) * (K + 2) * (K + 1);
+								+ ( CA1 - CE ) * (K + 2) * (K + 1);
 							ppdH[j][i] += ppdH[i][j];
 						}
 					} // End j conditional
@@ -934,13 +934,13 @@ void Hamilt( UINT nStateType,
 						if(o==2) // S2
 						{
 							ppdH[i][j] += ( 2 * h1A1E + h1EE ) / 3 * GCn2o3 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1))
-								( CA1 + 2 * CE) / 3 * (K + 2) * (K + 1);
+								+ ( CA1 + 2 * CE) / 3 * (K + 2) * (K + 1);
 							ppdH[j][i] += ppdH[i][j];
 						}
 						if(o==3) // S3
 						{
 							ppdH[i][j] += ( ( h1A1E - h1EE ) / 3 ) * GCn1o1 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1))
-								( CA1 - CE ) * (K + 2) * (K + 1);
+								+ ( CA1 - CE ) * (K + 2) * (K + 1);
 							ppdH[j][i] += ppdH[i][j];
 						}
 					} // End j conditional
@@ -956,7 +956,7 @@ void Hamilt( UINT nStateType,
 						if(o==3) // S3
 						{
 							ppdH[i][j] += ( 2 * h1A1E + h1EE ) / 3 * GC2o3 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1))
-								( CA1 + 2 * CE) / 3 * (K + 2) * (K + 1);
+								+ ( CA1 + 2 * CE) / 3 * (K + 2) * (K + 1);
 							ppdH[j][i] += ppdH[i][j];
 						}
 					} // End j conditional
