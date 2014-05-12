@@ -9,7 +9,7 @@ using std::complex;
 
 /*** Local constant definitions ****/
 
-#define N_CONST_LOCAL 13
+#define N_CONST_LOCAL 11
 //#define N_CONST_TWOFOLD 21
 #define MBASE			1 //HT: No Spin
 #define N_VOLATILE_TWF  4
@@ -70,23 +70,23 @@ squared, hence they are omitted. Only (-1)^K' matters.*/
 
 /*HT: Operator Functions*/
 
-/*double Fpm( double J, double K )
+double Fpm( int N, int K )
 {
-  return 2*J*(J+1)-K*K;
+  return 2*N*(N+1)-K*K;
 }
-double Fpp( double J, double K)
+double Fpp( int N, int K)
 {
-	return sqrt(J*(J+1)-(K-1)*(K-2))*sqrt(J*(J+1)-K*(K-1));
+	return sqrt(N*(N+1)-(K-1)*(K-2))*sqrt(N*(N+1)-K*(K-1));
 }
-double Fmm( double J, double K)
+double Fmm( int N, int K)
 {
-	return sqrt(J*(J+1)-(K+1)*(K+2))*sqrt(J*(J+1)-K*(K+1));
+	return sqrt(N*(N+1)-(K+1)*(K+2))*sqrt(N*(N+1)-K*(K+1));
 }
-double Fzz( double J, double K)
+double Fzz( int N, int K)
 {
 	return (K+2)*(K+1);
-}*/
-
+}
+/**************************/
 double F( double J, double K )
 {
   return sqrt((J-K)*(J+K+1));
@@ -321,7 +321,7 @@ double FNK(int N, int K)
 /* Model Name */
 char* Name()
 {
-  return "NO3_Distorted";
+  return "NO3_Localized";
 }
 
 /*-------------------------State types-------------------------*/
@@ -471,7 +471,7 @@ void InitPa( double* pdParam )
 /* Number of "GOOD" Quantum Numbers -- in all models only J is conserved, so we leave it as is */
 UINT QNnumG(UINT nStateType)
 {
-  return 1; /* N */
+  return 1; /* J */
 }
 
 /* Number of "BAD" Quantum Numbers */
@@ -479,8 +479,8 @@ UINT QNnumB(UINT nStateType)
 {
 	switch(nStateType)
 	{
-		case 0 : return 2;//K, WF (Localized Wells)
-		default : return 2;
+		case 0 : return 3;//N, K, WF (N is good without spin, if this model does not include spin)
+		default : return 3;
 	}
 }
 
@@ -623,7 +623,7 @@ UINT HamSize( UINT nStateType, int* pnQNd )
 void Hamilt( UINT nStateType,
 	     double* pdConst,
 	     int* pnQNd,
-	     double** ppdH,int** ppnQNm)
+	     std::complex<double>** ppdH,int** ppnQNm)
 {
 	if(nStateType == 0) 
 	{
@@ -684,7 +684,6 @@ void Hamilt( UINT nStateType,
 	  GCn1o1=exp(ACn1o1);
 
 		J = pnQNd[0];
-		N = J;
 		Ks = 2 * J + 1; //Size of blocks
 		DIM = 4 * Ks;
 
@@ -702,8 +701,10 @@ void Hamilt( UINT nStateType,
 
 			K = QN.K;
 			WF = QN.WF;
-			ppnQNm[ii][0] = WF;
+			N = QN.N;
+			ppnQNm[ii][0] = N;
 			ppnQNm[ii][1] = K;
+			ppnQNm[ii][2] = WF;
 
 			if(WF==0)
 			{
@@ -714,8 +715,10 @@ void Hamilt( UINT nStateType,
 
 					K = QN.K;
 					WF = QN.WF;
-					ppnQNm[jjj][0] = WF;
+					N = QN.N;
+					ppnQNm[jjj][0] = N;
 					ppnQNm[jjj][1] = K;
+					ppnQNm[jjj][2] = WF;
 
 					if(WF==0)
 					{
@@ -740,8 +743,10 @@ void Hamilt( UINT nStateType,
 
 					K = QN.K;
 					WF = QN.WF;
-					ppnQNm[jjj][0] = WF;
+					N = QN.N;
+					ppnQNm[jjj][0] = N;
 					ppnQNm[jjj][1] = K;
+					ppnQNm[jjj][2] = WF;
 
 					if(WF==0)
 					{
@@ -766,8 +771,10 @@ void Hamilt( UINT nStateType,
 
 					K = QN.K;
 					WF = QN.WF;
-					ppnQNm[jjj][0] = WF;
+					N = QN.N;
+					ppnQNm[jjj][0] = N;
 					ppnQNm[jjj][1] = K;
+					ppnQNm[jjj][2] = WF;
 
 					if(WF==0)
 					{
@@ -792,8 +799,10 @@ void Hamilt( UINT nStateType,
 
 			K = QN.K;
 			WF = QN.WF;
-			ppnQNm[ii][0] = WF;
+			N = QN.N;
+			ppnQNm[ii][0] = N;
 			ppnQNm[ii][1] = K;
+			ppnQNm[ii][2] = WF;
 
 			if(WF==1)
 			{
@@ -812,8 +821,10 @@ void Hamilt( UINT nStateType,
 
 			K = QN.K;
 			WF = QN.WF;
-			ppnQNm[i][0] = WF;
+			N = QN.N;
+			ppnQNm[i][0] = N;
 			ppnQNm[i][1] = K;
+			ppnQNm[i][2] = WF;
 
 /* Terms Linear in [N+,N-] */
 
@@ -829,10 +840,12 @@ void Hamilt( UINT nStateType,
 					if(o==2) // S2
 					{
 						ppdH[i][j] += ((BA1 - BE) / 3) * (2 * N * (N + 1) - K * K);
+						ppdH[j][i] = ppdH[i][j];
 					}
 					if(o==3) // S3	
 					{
 						ppdH[i][j] += ((BA1 - BE) / 3) * (2 * N * (N + 1) - K * K);
+						ppdH[j][i] = ppdH[i][j];
 					}
 				}// End o loop
 			} //End WF==0
@@ -852,6 +865,7 @@ void Hamilt( UINT nStateType,
 					if(o==3) // S3	
 					{
 						ppdH[i][j] += ((BA1 - BE) / 3) * (2 * N * (N + 1) - K * K);
+						ppdH[j][i] = ppdH[i][j];
 					}
 				}// End o loop
 			} //End WF==2
@@ -861,7 +875,7 @@ void Hamilt( UINT nStateType,
 
 			} //End WF==3
 
-/* Terms linear in N+^2 and Nz^2 (Respectively) */
+/* Terms linear in N+^2 */
 
 			if(WF==0) // S1
 			{
@@ -872,27 +886,23 @@ void Hamilt( UINT nStateType,
 					{
 						if(o==0) // S1
 						{
-							ppdH[i][j] += ( 2 * h1A1E + h1EE ) / 3 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1)) //N+^2
-								( CA1 + 2 * CE) / 3 * (K + 2) * (K + 1); //Nz^2
-							ppdH[j][i] += ppdH[i][j];
+							ppdH[i][j] += (2 * h1A1E + h1EE) / 3 * sqrt(N * (N + 1) - (K - 1) * (K - 2)) * sqrt(N * (N + 1) - K * (K - 1));
+							ppdH[j][i] = ppdH[i][j];
 						}
 						if(o==1) // A2
 						{
-							ppdH[i][j] += h1A2E / sqrt(2) * GC1o2 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1))
-								;
-							ppdH[j][i] += ppdH[i][j];
+							ppdH[i][j] += h1A2E / sqrt(2) * GC1o2 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1));
+							ppdH[j][i] = ppdH[i][j];
 						}
 						if(o==2) // S2
 						{
-							ppdH[i][j] += ( ( h1A1E - h1EE ) / 3 ) * GCn1o3 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1))
-								( CA1 - CE ) * (K + 2) * (K + 1);
-							ppdH[j][i] += ppdH[i][j];
+							ppdH[i][j] += ((h1A1E - h1EE) / 3) * GCn1o3 * sqrt(N * (N + 1) - (K - 1) * (K - 2)) * sqrt(N * (N + 1) - K * (K - 1));
+							ppdH[j][i] = ppdH[i][j];
 						}
 						if(o==3) // S3
 						{
-							ppdH[i][j] += ( ( h1A1E - h1EE ) / 3 ) * GC1o3 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1))
-								( CA1 - CE ) * (K + 2) * (K + 1);
-							ppdH[j][i] += ppdH[i][j];
+							ppdH[i][j] += ( ( h1A1E - h1EE ) / 3 ) * GC1o3 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1));
+							ppdH[j][i] = ppdH[i][j];
 						}
 					} // End j conditional
 				}// End o loop
@@ -904,22 +914,15 @@ void Hamilt( UINT nStateType,
 					int j=lReverseIndex(pnQNd, N, K-2, o);
 					if(j >= o * Ks) // Element is in intended WF block
 					{
-						if(o==1) // A2
-						{
-							ppdH[i][j] += 
-								CA2 * (K + 2) * (K + 1);
-							ppdH[j][i] += ppdH[i][j];
 						if(o==2) // S2
 						{
-							ppdH[i][j] += ( h1A2E / sqrt(2) ) * GCn1o6 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1))
-								;
-							ppdH[j][i] += ppdH[i][j];
+							ppdH[i][j] += ( h1A2E / sqrt(2) ) * GCn1o6 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1));
+							ppdH[j][i] = ppdH[i][j];
 						}
 						if(o==3) // S3
 						{
-							ppdH[i][j] += ( h1A2E / sqrt(2) ) * GC7o6 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1))
-								;
-							ppdH[j][i] += ppdH[i][j];
+							ppdH[i][j] += ( h1A2E / sqrt(2) ) * GC7o6 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1));
+							ppdH[j][i] = ppdH[i][j];
 						}
 					} // End j conditional
 				}// End o loop
@@ -933,15 +936,13 @@ void Hamilt( UINT nStateType,
 					{
 						if(o==2) // S2
 						{
-							ppdH[i][j] += ( 2 * h1A1E + h1EE ) / 3 * GCn2o3 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1))
-								( CA1 + 2 * CE) / 3 * (K + 2) * (K + 1);
-							ppdH[j][i] += ppdH[i][j];
+							ppdH[i][j] += ( 2 * h1A1E + h1EE ) / 3 * GCn2o3 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1));
+							ppdH[j][i] = ppdH[i][j];
 						}
 						if(o==3) // S3
 						{
-							ppdH[i][j] += ( ( h1A1E - h1EE ) / 3 ) * GCn1o1 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1))
-								( CA1 - CE ) * (K + 2) * (K + 1);
-							ppdH[j][i] += ppdH[i][j];
+							ppdH[i][j] += ( ( h1A1E - h1EE ) / 3 ) * GCn1o1 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1));
+							ppdH[j][i] = ppdH[i][j];
 						}
 					} // End j conditional
 				}// End o loop
@@ -955,15 +956,14 @@ void Hamilt( UINT nStateType,
 					{
 						if(o==3) // S3
 						{
-							ppdH[i][j] += ( 2 * h1A1E + h1EE ) / 3 * GC2o3 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1))
-								( CA1 + 2 * CE) / 3 * (K + 2) * (K + 1);
-							ppdH[j][i] += ppdH[i][j];
+							ppdH[i][j] += ( 2 * h1A1E + h1EE ) / 3 * GC2o3 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1));
+							ppdH[j][i] = ppdH[i][j];
 						}
 					} // End j conditional
 				}// End o loop
 			} //End WF==3
 
-/* Terms Linear in N-^2*/
+/* Terms Linear in N-^2 and Nz^2 (Respectively) */
 
 			if(WF==0)
 			{
@@ -974,23 +974,27 @@ void Hamilt( UINT nStateType,
 					{
 						if(o==0) // S1
 						{
-							ppdH[i][j] += ( 2 * h1A1E + h1EE ) / 3 * sqrt(N * (N + 1) - (K + 1) * (K + 2)) * sqrt(N * (N + 1) - K * (K + 1));
-							ppdH[j][i] += ppdH[i][j];
+							ppdH[i][j] += ( 2 * h1A1E + h1EE ) / 3 * sqrt(N * (N + 1) - (K + 1) * (K + 2)) * sqrt(N * (N + 1) - K * (K + 1)) // N-^2
+								+ ( CA1 + 2 * CE ) / 3 * (K + 2) * (K + 1); // Nz^2
+							ppdH[j][i] = ppdH[i][j];
 						}
 						if(o==1) // A2
 						{
-							ppdH[i][j] += h1A2E / sqrt(2) * G1o2 * sqrt(N * (N + 1) - (K + 1) * (K + 2)) * sqrt(N * (N + 1) - K * (K + 1));
-							ppdH[j][i] += ppdH[i][j];
+							ppdH[i][j] += h1A2E / sqrt(2) * G1o2 * sqrt(N * (N + 1) - (K + 1) * (K + 2)) * sqrt(N * (N + 1) - K * (K + 1))
+								;
+							ppdH[j][i] = ppdH[i][j];
 						}
 						if(o==2) // S2
 						{
-							ppdH[i][j] += ( ( h1A1E - h1EE ) / 3 ) * Gn1o3 * sqrt(N * (N + 1) - (K + 1) * (K + 2)) * sqrt(N * (N + 1) - K * (K + 1));
-							ppdH[j][i] += ppdH[i][j];
+							ppdH[i][j] += ( ( h1A1E - h1EE ) / 3 ) * Gn1o3 * sqrt(N * (N + 1) - (K + 1) * (K + 2)) * sqrt(N * (N + 1) - K * (K + 1))
+								+ (CA1 - CE) * (K + 2) * (K + 1);
+							ppdH[j][i] = ppdH[i][j];
 						}
 						if(o==3) // S3
 						{
-							ppdH[i][j] += ( ( h1A1E - h1EE ) / 3 ) * G1o3 * sqrt(N * (N + 1) - (K + 1) * (K + 2)) * sqrt(N * (N + 1) - K * (K + 1));
-							ppdH[j][i] += ppdH[i][j];
+							ppdH[i][j] += ( ( h1A1E - h1EE ) / 3 ) * G1o3 * sqrt(N * (N + 1) - (K + 1) * (K + 2)) * sqrt(N * (N + 1) - K * (K + 1))
+								+ (CA1 - CE) * (K + 2) * (K + 1);
+							ppdH[j][i] = ppdH[i][j];
 						}
 					} // End j conditional
 				}// End o loop
@@ -1002,15 +1006,23 @@ void Hamilt( UINT nStateType,
 					int j=lReverseIndex(pnQNd, N, K+2, o);
 					if(j < (o + 1) * Ks) // Element is in intended WF block
 					{
+						if (o == 1) // A2
+						{
+							ppdH[i][j] +=
+								CA2 * (K + 2) * (K + 1);
+							ppdH[j][i] = ppdH[i][j];
+						}
 						if(o==2) // S2
 						{
-							ppdH[i][j] += ( h1A2E / sqrt(2) ) * Gn1o6 * sqrt(N * (N + 1) - (K + 1) * (K + 2)) * sqrt(N * (N + 1) - K * (K + 1));
-							ppdH[j][i] += ppdH[i][j];
+							ppdH[i][j] += ( h1A2E / sqrt(2) ) * Gn1o6 * sqrt(N * (N + 1) - (K + 1) * (K + 2)) * sqrt(N * (N + 1) - K * (K + 1))
+								;
+							ppdH[j][i] = ppdH[i][j];
 						}
 						if(o==3) // S3
 						{
-							ppdH[i][j] += ( h1A2E / sqrt(2) ) * G7o6 * sqrt(N * (N + 1) - (K + 1) * (K + 2)) * sqrt(N * (N + 1) - K * (K + 1));
-							ppdH[j][i] += ppdH[i][j];
+							ppdH[i][j] += ( h1A2E / sqrt(2) ) * G7o6 * sqrt(N * (N + 1) - (K + 1) * (K + 2)) * sqrt(N * (N + 1) - K * (K + 1))
+								;
+							ppdH[j][i] = ppdH[i][j];
 						}
 					} // End j conditional
 				}// End o loop
@@ -1024,13 +1036,15 @@ void Hamilt( UINT nStateType,
 					{
 						if(o==2) // S2
 						{
-							ppdH[i][j] += ( 2 * h1A1E + h1EE ) / 3 * Gn2o3 * sqrt(N * (N + 1) - (K + 1) * (K + 2)) * sqrt(N * (N + 1) - K * (K + 1));
-							ppdH[j][i] += ppdH[i][j];
+							ppdH[i][j] += ( 2 * h1A1E + h1EE ) / 3 * Gn2o3 * sqrt(N * (N + 1) - (K + 1) * (K + 2)) * sqrt(N * (N + 1) - K * (K + 1))
+								+ ( CA1 + 2 * CE ) / 3 * (K + 2) * (K + 1);
+							ppdH[j][i] = ppdH[i][j];
 						}
 						if(o==3) // S3
 						{
-							ppdH[i][j] += ( ( h1A1E - h1EE ) / 3 ) * Gn1o1 * sqrt(N * (N + 1) - (K + 1) * (K + 2)) * sqrt(N * (N + 1) - K * (K + 1));
-							ppdH[j][i] += ppdH[i][j];
+							ppdH[i][j] += ( ( h1A1E - h1EE ) / 3 ) * Gn1o1 * sqrt(N * (N + 1) - (K + 1) * (K + 2)) * sqrt(N * (N + 1) - K * (K + 1))
+								+ (CA1 - CE) * (K + 2) * (K + 1);
+							ppdH[j][i] = ppdH[i][j];
 						}
 					} // End j conditional
 				}// End o loop
@@ -1044,8 +1058,9 @@ void Hamilt( UINT nStateType,
 					{
 						if(o==3) // S3
 						{
-							ppdH[i][j] += ( 2 * h1A1E + h1EE ) / 3 * G2o3 * sqrt(N * (N + 1) - (K + 1) * (K + 2)) * sqrt(N * (N + 1) - K * (K + 1));
-							ppdH[j][i] += ppdH[i][j];
+							ppdH[i][j] += ( 2 * h1A1E + h1EE ) / 3 * G2o3 * sqrt(N * (N + 1) - (K + 1) * (K + 2)) * sqrt(N * (N + 1) - K * (K + 1))
+								+ (CA1 + 2 * CE) / 3 * (K + 2) * (K + 1);
+							ppdH[j][i] = ppdH[i][j];
 						}
 					} // End j conditional
 				}// End o loop
@@ -1062,27 +1077,28 @@ void Hamilt( UINT nStateType,
 void DHamilt( UINT nStateType,
               double* pdConst,
               int* pnQNd,
-              double** ppdDH, int k )
+              std::complex<double> ** ppdDH, int k )
 {
 
 	  UINT i, j;
-	  double *pdIndicators, **ppdHbase;
+	  double *pdIndicators;
+	  std::complex<double> **ppdHbase;
 	  int **ppnQNm;
 	  UINT nDim;
 	  int lCN;
 	  lCN = ConNum(nStateType);
 	  pdIndicators = (double *)calloc(lCN , sizeof( double ) );
 
-	  nDim = HamSize(nStateType,pnQNd);  /* Hamiltonian is NOTE: */
+	  nDim = HamSize(nStateType,pnQNd); 
 	  for ( int i = 0; i < lCN; i++ ) pdIndicators[i]=1.0;
 	  pdIndicators[k] +=1.0;
 	  ppnQNm = (int**)calloc( nDim, sizeof( int* ) );
-	  ppdHbase = (double**)calloc(nDim, sizeof(double*));
+	  ppdHbase = (std::complex<double>**)calloc(nDim, sizeof(double*));
 
 	  for ( i = 0; i < nDim; i++ )
 	  {
 		ppnQNm[i] = (int*)calloc( QNnumB(nStateType), sizeof(int) );
-		ppdHbase[i] = (double*)calloc( nDim, sizeof(double));
+		ppdHbase[i] = (std::complex<double>*)calloc( nDim, sizeof(double));
 	  }
 	Hamilt (nStateType, pdConst, pnQNd, ppdHbase, ppnQNm);
 	Hamilt( nStateType, pdIndicators, pnQNd, ppdDH, ppnQNm);
