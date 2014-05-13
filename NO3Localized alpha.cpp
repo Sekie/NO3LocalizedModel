@@ -878,8 +878,14 @@ void Hamilt( UINT nStateType,
 					{
 						if(o==0) // S1
 						{
+<<<<<<< HEAD
 							ppdH[i][j] += (2 * h1A1E + h1EE) / 3 * Fpp(N, K);
 							ppdH[j][i] = ppdH[i][j];
+=======
+							ppdH[i][j] += ( 2 * h1A1E + h1EE ) / 3 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1)) //N+^2
+								+ ( CA1 + 2 * CE) / 3 * (K + 2) * (K + 1); //Nz^2
+							ppdH[j][i] += ppdH[i][j];
+>>>>>>> 62a8921f4a9dbfcd0f517b945c855fe53753fcec
 						}
 						if(o==1) // A2
 						{
@@ -888,6 +894,7 @@ void Hamilt( UINT nStateType,
 						}
 						if(o==2) // S2
 						{
+<<<<<<< HEAD
 							ppdH[i][j] += ((h1A1E - h1EE) / 3) * GCn1o3 * Fpp(N, K);
 							ppdH[j][i] = ppdH[i][j];
 						}
@@ -895,6 +902,17 @@ void Hamilt( UINT nStateType,
 						{
 							ppdH[i][j] += ((h1A1E - h1EE) / 3) * GC1o3 * Fpp(N, K);
 							ppdH[j][i] = ppdH[i][j];
+=======
+							ppdH[i][j] += ( ( h1A1E - h1EE ) / 3 ) * GCn1o3 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1))
+								+ ( CA1 - CE ) * (K + 2) * (K + 1);
+							ppdH[j][i] += ppdH[i][j];
+						}
+						if(o==3) // S3
+						{
+							ppdH[i][j] += ( ( h1A1E - h1EE ) / 3 ) * GC1o3 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1))
+								+ ( CA1 - CE ) * (K + 2) * (K + 1);
+							ppdH[j][i] += ppdH[i][j];
+>>>>>>> 62a8921f4a9dbfcd0f517b945c855fe53753fcec
 						}
 					} // End j conditional
 				}// End o loop
@@ -928,6 +946,7 @@ void Hamilt( UINT nStateType,
 					{
 						if(o==2) // S2
 						{
+<<<<<<< HEAD
 							ppdH[i][j] += (2 * h1A1E + h1EE) / 3 * GCn2o3 * Fpp(N, K);
 							ppdH[j][i] = ppdH[i][j];
 						}
@@ -935,6 +954,17 @@ void Hamilt( UINT nStateType,
 						{
 							ppdH[i][j] += ((h1A1E - h1EE) / 3) * GCn1o1 * Fpp(N, K);
 							ppdH[j][i] = ppdH[i][j];
+=======
+							ppdH[i][j] += ( 2 * h1A1E + h1EE ) / 3 * GCn2o3 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1))
+								+ ( CA1 + 2 * CE) / 3 * (K + 2) * (K + 1);
+							ppdH[j][i] += ppdH[i][j];
+						}
+						if(o==3) // S3
+						{
+							ppdH[i][j] += ( ( h1A1E - h1EE ) / 3 ) * GCn1o1 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1))
+								+ ( CA1 - CE ) * (K + 2) * (K + 1);
+							ppdH[j][i] += ppdH[i][j];
+>>>>>>> 62a8921f4a9dbfcd0f517b945c855fe53753fcec
 						}
 					} // End j conditional
 				}// End o loop
@@ -948,8 +978,14 @@ void Hamilt( UINT nStateType,
 					{
 						if(o==3) // S3
 						{
+<<<<<<< HEAD
 							ppdH[i][j] += (2 * h1A1E + h1EE) / 3 * GC2o3 * Fpp(N, K);
 							ppdH[j][i] = ppdH[i][j];
+=======
+							ppdH[i][j] += ( 2 * h1A1E + h1EE ) / 3 * GC2o3 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1))
+								+ ( CA1 + 2 * CE) / 3 * (K + 2) * (K + 1);
+							ppdH[j][i] += ppdH[i][j];
+>>>>>>> 62a8921f4a9dbfcd0f517b945c855fe53753fcec
 						}
 					} // End j conditional
 				}// End o loop
