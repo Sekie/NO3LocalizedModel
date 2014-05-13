@@ -1,0 +1,20 @@
+# depslib dependency file v1.0
+1400010323 source:u:\specview\models\no3localizedmodel\no3localizedmodel\no3localized alpha.cpp
+	"msdef.h"
+	"mathutil.h"
+	<malloc.h>
+	<math.h>
+	"model.h"
+	<complex>
+
+862703684 u:\specview\models\no3localizedmodel\no3localizedmodel\msdef.h
+
+862703684 u:\specview\models\no3localizedmodel\no3localizedmodel\mathutil.h
+
+947204612 u:\specview\models\no3localizedmodel\no3localizedmodel\model.h
+
+1012429380 source:u:\specview\models\no3localizedmodel\no3localizedmodel\mathutil.cpp
+	"msdef.h"
+	<math.h>
+	"mathutil.h"
+

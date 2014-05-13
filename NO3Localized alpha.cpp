@@ -11,7 +11,7 @@ using std::complex;
 
 #define N_CONST_LOCAL 11
 //#define N_CONST_TWOFOLD 21
-#define MBASE			1 //HT: No Spin
+#define MBASE			1 /*** NO SPIN ***/
 #define N_VOLATILE_TWF  4
 #define N_EVSTATES      2
 #define N_SYMM_STATES   3
@@ -39,12 +39,11 @@ int WF;
 /*
   ***********************************************************************
   THIS MODEL IS USED FOR CALCULATION OF THE SPECTRA INVOLVING
-  VIBRONIC FOURFOLD IN HUND'S CASE "B" BASIS SET AND A1, A2, E+ and E-
-  VIBRONIC BASIS SET. INTERACTIONS INCLUDE SPIN-ORBIT, CORIOLIS, OPTIONAL
+  VIBRONIC FOURFOLD IN HUND'S CASE "B" BASIS SET IN THE BASIS SET OF
+  LOCALIZED WAVEFUNCTIONS IN THREE EQUIVALENT POTENTIAL WELLS TRANSFORMED
+  FROM AN A1, A2, E', E'' BASIS SET.
+  INTERACTIONS (DO NOT) INCLUDE SPIN-ORBIT, CORIOLIS, OPTIONAL
   SPIN-ROTATIONAL INTERACTIONS AND CENTRIFUGAL DISTORTION PARAMETERS.
-
-  THIS MODEL INCLUDES MING-WEI CHEN'S OBLATE SYMMETRIC TOP HAMILTONIAN
-  WITH SPIN ROTATION AND CENTRIFUGAL DISTORTION AS A SUBSET.
 
   TRANSITIONS BETWEEN LOWER STATE A2 LEVELS (MWC'S HAM) AND EXCITED
   STATE FOURFOLD STATES MAY BE CALCULATED.  ADDITIONALLY ALL
@@ -68,69 +67,50 @@ be readily combined to obtain x,y,z, or x, or+/-, z transition moments. NOTE: si
 they result in the common factor for all contributions to the intensity from a particular state and will be lost when TM is
 squared, hence they are omitted. Only (-1)^K' matters.*/
 
-/*HT: Operator Functions*/
-
-double Fpm( int N, int K )
+double F(double J, double K)
 {
-  return 2*N*(N+1)-K*K;
-}
-double Fpp( int N, int K)
-{
-	return sqrt(N*(N+1)-(K-1)*(K-2))*sqrt(N*(N+1)-K*(K-1));
-}
-double Fmm( int N, int K)
-{
-	return sqrt(N*(N+1)-(K+1)*(K+2))*sqrt(N*(N+1)-K*(K+1));
-}
-double Fzz( int N, int K)
-{
-	return (K+2)*(K+1);
-}
-/**************************/
-double F( double J, double K )
-{
-  return sqrt((J-K)*(J+K+1));
+	return sqrt((J - K)*(J + K + 1));
 }
 
 double TDM6J(int J2p, int Np, int J2pp, int Npp)
 {
-double out;
-double Jp, Jpp;
-double phase, rNorm;
+	double out;
+	double Jp, Jpp;
+	double phase, rNorm;
 
-Jp = ((double)J2p)/2.0;
-Jpp = ((double)J2pp)/2.0;
+	Jp = ((double)J2p) / 2.0;
+	Jpp = ((double)J2pp) / 2.0;
 
-rNorm = sqrt((Jp+0.5)*(Jpp+0.5)*(2*Np+1)*(2*Npp+1));
+	rNorm = sqrt((Jp + 0.5)*(Jpp + 0.5)*(2 * Np + 1)*(2 * Npp + 1));
 
-/* check if thiangle relationships are fulfilled. Note: J2p and J2pp are J values, DOUBLED*/
-if (abs(Np-Npp) > 1) return 0.0;
-if (abs(J2p-J2pp) > 2 ) return 0.0;
+	/* check if thiangle relationships are fulfilled. Note: J2p and J2pp are J values, DOUBLED*/
+	if (abs(Np - Npp) > 1) return 0.0;
+	if (abs(J2p - J2pp) > 2) return 0.0;
 
-if ( J2pp == 2*Npp+1 && J2p == 2*Np+1 ) /* case F"1 --> F'1 transition */
-{
-	phase = ((Np -Npp)%2)? -1.0:1.0;
-	out = 0.5*phase* sqrt((double)(Npp+Np)*(3+Npp+Np));
-}
-else if ( J2pp == 2*Npp-1 && J2p == 2*Np-1 ) /* case F"2 --> F'2 transition */
-{
-	phase = ((Np -Npp)%2)? -1.0:1.0;
-	out = (Np*Npp==0)? 0.0:
-		-0.5*phase*sqrt((double)(Np+Npp-1)*(Np+Npp+2));
-}
-else if ( J2pp == 2*Npp-1 && J2p == 2*Np +1) /* case F"2 --> F'1 transition */
-{
-	phase = ((Np -Npp)%2)? -1.0:1.0;
-	out = (Npp==0)? 0: -0.5 *phase *sqrt((double)(Np-Npp+2)*(Npp-Np+1));
-}
-else if (J2pp == 2*Npp+1 && J2p == 2*Np -1)	/* case F"1 --> F'2 transition */
-{
-	phase = ((Np -Npp)%2)? -1.0:1.0;
-	out = (Np==0)? 0: -0.5*phase* sqrt((double)(Npp-Np+2)*(Np-Npp+1));
-}
-else out = 0.0;
+	if (J2pp == 2 * Npp + 1 && J2p == 2 * Np + 1) /* case F"1 --> F'1 transition */
+	{
+		phase = ((Np - Npp) % 2) ? -1.0 : 1.0;
+		out = 0.5*phase* sqrt((double)(Npp + Np)*(3 + Npp + Np));
+	}
+	else if (J2pp == 2 * Npp - 1 && J2p == 2 * Np - 1) /* case F"2 --> F'2 transition */
+	{
+		phase = ((Np - Npp) % 2) ? -1.0 : 1.0;
+		out = (Np*Npp == 0) ? 0.0 :
+			-0.5*phase*sqrt((double)(Np + Npp - 1)*(Np + Npp + 2));
+	}
+	else if (J2pp == 2 * Npp - 1 && J2p == 2 * Np + 1) /* case F"2 --> F'1 transition */
+	{
+		phase = ((Np - Npp) % 2) ? -1.0 : 1.0;
+		out = (Npp == 0) ? 0 : -0.5 *phase *sqrt((double)(Np - Npp + 2)*(Npp - Np + 1));
+	}
+	else if (J2pp == 2 * Npp + 1 && J2p == 2 * Np - 1)	/* case F"1 --> F'2 transition */
+	{
+		phase = ((Np - Npp) % 2) ? -1.0 : 1.0;
+		out = (Np == 0) ? 0 : -0.5*phase* sqrt((double)(Npp - Np + 2)*(Np - Npp + 1));
+	}
+	else out = 0.0;
 
-return (rNorm < M_NOISE )? 0: out/rNorm;
+	return (rNorm < M_NOISE) ? 0 : out / rNorm;
 }
 
 /* similarly, for the 3J-symbol*/
@@ -144,98 +124,98 @@ revert to mathutil.c functions. This function will return 0 if q is not -1, 0, o
 */
 double TDM3J(int Np, int Kp, int Npp, int Kpp, int q)
 {
-double out, rNorm, phase;
+	double out, rNorm, phase;
 
-if (Kpp + q -Kp !=0) return 0;
-if (abs(Np - Npp ) > 1) return 0;
-if (abs(q)> 1) return 0;
+	if (Kpp + q - Kp != 0) return 0;
+	if (abs(Np - Npp) > 1) return 0;
+	if (abs(q)> 1) return 0;
 
-phase = ((Npp+Kpp)%2)? -1.0: 1.0;
+	phase = ((Npp + Kpp) % 2) ? -1.0 : 1.0;
 
-if (Np==Npp) rNorm = sqrt((double)Npp*(1+Npp)*(1+2*Npp))*sqrt(2.0);
-else if (Np == Npp+1) rNorm = sqrt((double)(1+Npp)*(1+2*Npp)*(1+2*Np))*sqrt(2.0);
-else if (Np == Npp-1) rNorm = sqrt((double)Npp*(1+2*Np)*(1+2*Npp))*sqrt(2.0);
-else rNorm =0.0;
+	if (Np == Npp) rNorm = sqrt((double)Npp*(1 + Npp)*(1 + 2 * Npp))*sqrt(2.0);
+	else if (Np == Npp + 1) rNorm = sqrt((double)(1 + Npp)*(1 + 2 * Npp)*(1 + 2 * Np))*sqrt(2.0);
+	else if (Np == Npp - 1) rNorm = sqrt((double)Npp*(1 + 2 * Np)*(1 + 2 * Npp))*sqrt(2.0);
+	else rNorm = 0.0;
 
-if (Np==Npp)
-	switch (q)
+	if (Np == Npp)
+		switch (q)
 	{
-	case 0: out = -phase*Kpp*sqrt(2.0);
-		break;
-	case 1: out = -phase*F(Npp, Kpp);
-		break;
-	case -1: out = phase*F(Npp,Kpp-1);
-		break;
-	default: out = 0.0;
+		case 0: out = -phase*Kpp*sqrt(2.0);
+			break;
+		case 1: out = -phase*F(Npp, Kpp);
+			break;
+		case -1: out = phase*F(Npp, Kpp - 1);
+			break;
+		default: out = 0.0;
 	}
-else if (Np==Npp+1)
-	switch (q)
-   {
-	case 0: out = -phase*sqrt((double)(Np*Np - Kpp*Kpp))*sqrt(2.0);
-		break;
-	case 1: out = phase*sqrt((double)(Np+Kpp)*(Np+Kpp+1));
-		break;
-   case -1: out = phase*sqrt((double)(Np-Kpp)*(Np-Kpp+1));
-		break;
-	default: out = 0.0;
-	}
-else if (Np==Npp-1)
-	switch (q)
+	else if (Np == Npp + 1)
+		switch (q)
 	{
-	case 0: out = phase*sqrt((double)(Npp*Npp - Kpp*Kpp))*sqrt(2.0);
-		break;
-	case 1: out = phase*sqrt((double)(Np-Kpp)*(Np-Kpp+1));
-		break;
-	case -1: out = phase*sqrt((double)(Np+Kpp)*(Np+Kpp+1));
-		break;
-	default: out = 0.0;
+		case 0: out = -phase*sqrt((double)(Np*Np - Kpp*Kpp))*sqrt(2.0);
+			break;
+		case 1: out = phase*sqrt((double)(Np + Kpp)*(Np + Kpp + 1));
+			break;
+		case -1: out = phase*sqrt((double)(Np - Kpp)*(Np - Kpp + 1));
+			break;
+		default: out = 0.0;
 	}
-return (rNorm < M_NOISE)? 0.0: out/rNorm;
+	else if (Np == Npp - 1)
+		switch (q)
+	{
+		case 0: out = phase*sqrt((double)(Npp*Npp - Kpp*Kpp))*sqrt(2.0);
+			break;
+		case 1: out = phase*sqrt((double)(Np - Kpp)*(Np - Kpp + 1));
+			break;
+		case -1: out = phase*sqrt((double)(Np + Kpp)*(Np + Kpp + 1));
+			break;
+		default: out = 0.0;
+	}
+	return (rNorm < M_NOISE) ? 0.0 : out / rNorm;
 }
 
 /* functions MWC uses in Hamilt */
 double G(double N, double S, double J)
 {
-	return N*(N+1) + S*(S+1) - J*(J+1);
+	return N*(N + 1) + S*(S + 1) - J*(J + 1);
 }
 
 double C(double J, double N)
 {
 	double S = 0.5;
-	return J*(J+1) - N*(N+1) - S*(S+1);
+	return J*(J + 1) - N*(N + 1) - S*(S + 1);
 }
 
 double Fe(double J, double N)
 {
-	return -C(J, N)/2/N/(N+1);
+	return -C(J, N) / 2 / N / (N + 1);
 }
 
 double Ro(double J, double N)
 {
 	double S = .5;
-	return -(3*Fe(J, N)*(C(J,N)+1)+2*S*(S+1))/(2*N-1)/(2*N+3);
+	return -(3 * Fe(J, N)*(C(J, N) + 1) + 2 * S*(S + 1)) / (2 * N - 1) / (2 * N + 3);
 }
 
 double P(double J, double N)
 {
 	double S = .5;
-	return (N-J+S)*(N+J+S+1);
+	return (N - J + S)*(N + J + S + 1);
 }
 
 double Q(double J, double N)
 {
 	double S = .5;
-	return (J-N+S)*(N+J-S+1);
+	return (J - N + S)*(N + J - S + 1);
 }
 
 double Psi(double J, double N)
 {
-	return -1./N*sqrt(P(J,N)*Q(J,N-1)/(2*N-1)/(2*N+1));
+	return -1. / N*sqrt(P(J, N)*Q(J, N - 1) / (2 * N - 1) / (2 * N + 1));
 }
 
 double g(double X, double Y)
 {
-	return sqrt((X-Y)*(X-Y-1));
+	return sqrt((X - Y)*(X - Y - 1));
 }
 
 double JJNN(int Jp, int Jpp, int Np, int Npp)
@@ -245,78 +225,90 @@ double JJNN(int Jp, int Jpp, int Np, int Npp)
 }
 //MWC's functions for NSSW
 double NSSW(int N, int K)
-{ int M ;
-    /*-------------Nuclear Spin Statistic Weight------------------*/
- 				M = K%6;
- 				if ( M == 1 || M == 5 ) /* K = 6n+1 */
- 				{
- 					return 0.0;
- 				}
- 				else if ( M == 2 || M == 4 ) /* K = 6n+2
-*/
- 				{
- 					return 0.0;
- 				}
- 				else if ( K == 0 && N %2 == 0 ) /* KL = 0, NL = even */
- 				{
- 					return 0.0;
- 				}
- 				else
- 				{
- 					return 3.0 ;
- 				}
+{
+	int M;
+	/*-------------Nuclear Spin Statistic Weight------------------*/
+	M = K % 6;
+	if (M == 1 || M == 5) /* K = 6n+1 */
+	{
+		return 0.0;
+	}
+	else if (M == 2 || M == 4) /* K = 6n+2
+							   */
+	{
+		return 0.0;
+	}
+	else if (K == 0 && N % 2 == 0) /* KL = 0, NL = even */
+	{
+		return 0.0;
+	}
+	else
+	{
+		return 3.0;
+	}
 
-    /*-------------Nuclear Spin Statistic Weight------------------*/
+	/*-------------Nuclear Spin Statistic Weight------------------*/
 }
 UINT StatWeight(UINT nLoStateType, int* LoStQN, double* pdParam)
 {
-  int JL, NL, KL, SL, M, NSSW;
-  JL= LoStQN[0];
-  NL= LoStQN[1];
-  KL= LoStQN[2];
-  SL=(double)LoStQN[3]/2.;
-  int iLo = nLoStateType;
-  if (nLoStateType == 0) /* iLo = 0 */
+	int JL, NL, KL, SL, M, NSSW;
+	JL = LoStQN[0];
+	NL = LoStQN[1];
+	KL = LoStQN[2];
+	SL = (double)LoStQN[3] / 2.;
+	int iLo = nLoStateType;
+	if (nLoStateType == 0) /* iLo = 0 */
 	{
 		if (pdParam[9] == 1)  /* pdParam[9] = 1, NSSW is considered */
 		{ /* MWC: nuclear spin statistical weight function for intensity calculation */
-				M = ((int)(abs(KL)))%6;
-				if ( M == 1 || M == -5 ) /* K = 6n+1 */
-				{
-					NSSW = 0;
-				}
-				else if ( M == 2 || M == -4 ) /* K = 6n+2 */
-				{
-					NSSW = 0;
-				}
-				else if ( KL == 0 && (int)(abs(NL))%2 == 0 ) /* KL = 0, NL = even */
-				{
-					NSSW = 0;
-				}
-				else
-				{
-					NSSW = 3 * ( 2 * JL + 1 );
-				}
+			M = ((int)(abs(KL))) % 6;
+			if (M == 1 || M == -5) /* K = 6n+1 */
+			{
+				NSSW = 0;
+			}
+			else if (M == 2 || M == -4) /* K = 6n+2 */
+			{
+				NSSW = 0;
+			}
+			else if (KL == 0 && (int)(abs(NL)) % 2 == 0) /* KL = 0, NL = even */
+			{
+				NSSW = 0;
+			}
+			else
+			{
+				NSSW = 3 * (2 * JL + 1);
+			}
 		}
 		if (pdParam[9] == 1)  /* pdParam[9] = 1, NSSW is not considered */
 		{ /* MW: nuclear spin statistical weight function for intensity calculation */
-				NSSW = 2 * JL + 1;
+			NSSW = 2 * JL + 1;
 		}
 		else
 		{
-				NSSW = 2 * JL + 1;
+			NSSW = 2 * JL + 1;
 		}
 	}
 	return NSSW;
 }
 
-double lfabs(double x) {return (x<0.0)? -x:x;}
+double lfabs(double x) { return (x<0.0) ? -x : x; }
 
-double FNK(int N, int K)
+/* Functions used in the Localized Hamiltonian (no spin) */
+double Fpm(int N, int K)
 {
-	double n = N;
-	double k = K;
-	return sqrt(n * (n + 1) - k * (k + 1));
+	return (2 * N * (N + 1) - K * K);
+}
+double Fpp(int N, int K)
+{
+	return sqrt(N * (N + 1) - (K - 1) * (K - 2)) * sqrt(N * (N + 1) - K * (K - 1));
+}
+double Fmm(int N, int K)
+{
+	return sqrt(N * (N + 1) - (K + 1) * (K + 2)) * sqrt(N * (N + 1) - K * (K + 1));
+}
+double Fzz(int N, int K)
+{
+	return (K + 2) * (K + 1);
 }
 /* Model Name */
 char* Name()
@@ -340,6 +332,7 @@ char* StName( UINT nStateType )
 	switch (nStateType)
 	{
 	case 0:
+		return "Localized";
 	default:
 		return "Localized";
 	}
@@ -360,7 +353,6 @@ UINT ConNum( UINT nStateType )
 
 }
 
-/* Constant names; A' and A" isolated states have identically named constants */
 char* ConName( UINT nStateType, UINT nConst )
 {
 	switch(nStateType)
@@ -835,16 +827,16 @@ void Hamilt( UINT nStateType,
 					int j=lReverseIndex(pnQNd, N, K, o);
 					if(o==0) // S1
 					{
-						ppdH[i][j] += ((BA1 + 2 * BE) / 3) * (2 * N * (N + 1) - K * K);
+						ppdH[i][j] += ((BA1 + 2 * BE) / 3) * Fpm(N, K);
 					}
 					if(o==2) // S2
 					{
-						ppdH[i][j] += ((BA1 - BE) / 3) * (2 * N * (N + 1) - K * K);
+						ppdH[i][j] += ((BA1 - BE) / 3) * Fpm(N, K);
 						ppdH[j][i] = ppdH[i][j];
 					}
 					if(o==3) // S3	
 					{
-						ppdH[i][j] += ((BA1 - BE) / 3) * (2 * N * (N + 1) - K * K);
+						ppdH[i][j] += ((BA1 - BE) / 3) * Fpm(N, K);
 						ppdH[j][i] = ppdH[i][j];
 					}
 				}// End o loop
@@ -860,18 +852,18 @@ void Hamilt( UINT nStateType,
 					int j=lReverseIndex(pnQNd, N, K, o);
 					if(o==2) // S2
 					{
-						ppdH[i][j] += ((BA1 + 2 * BE) / 3) * (2 * N * (N + 1) - K * K);
+						ppdH[i][j] += ((BA1 + 2 * BE) / 3) * Fpm(N, K);
 					}
 					if(o==3) // S3	
 					{
-						ppdH[i][j] += ((BA1 - BE) / 3) * (2 * N * (N + 1) - K * K);
+						ppdH[i][j] += ((BA1 - BE) / 3) * Fpm(N, K);
 						ppdH[j][i] = ppdH[i][j];
 					}
 				}// End o loop
 			} //End WF==2
 			if(WF==3)
 			{
-				ppdH[i][i] += ((BA1 + 2 * BE) / 3) * (2 * N * (N + 1) - K * K);
+				ppdH[i][i] += ((BA1 + 2 * BE) / 3) * Fpm(N, K);
 
 			} //End WF==3
 
@@ -886,22 +878,22 @@ void Hamilt( UINT nStateType,
 					{
 						if(o==0) // S1
 						{
-							ppdH[i][j] += (2 * h1A1E + h1EE) / 3 * sqrt(N * (N + 1) - (K - 1) * (K - 2)) * sqrt(N * (N + 1) - K * (K - 1));
+							ppdH[i][j] += (2 * h1A1E + h1EE) / 3 * Fpp(N, K);
 							ppdH[j][i] = ppdH[i][j];
 						}
 						if(o==1) // A2
 						{
-							ppdH[i][j] += h1A2E / sqrt(2) * GC1o2 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1));
+							ppdH[i][j] += h1A2E / sqrt(2) * GC1o2 * Fpp(N, K);
 							ppdH[j][i] = ppdH[i][j];
 						}
 						if(o==2) // S2
 						{
-							ppdH[i][j] += ((h1A1E - h1EE) / 3) * GCn1o3 * sqrt(N * (N + 1) - (K - 1) * (K - 2)) * sqrt(N * (N + 1) - K * (K - 1));
+							ppdH[i][j] += ((h1A1E - h1EE) / 3) * GCn1o3 * Fpp(N, K);
 							ppdH[j][i] = ppdH[i][j];
 						}
 						if(o==3) // S3
 						{
-							ppdH[i][j] += ( ( h1A1E - h1EE ) / 3 ) * GC1o3 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1));
+							ppdH[i][j] += ((h1A1E - h1EE) / 3) * GC1o3 * Fpp(N, K);
 							ppdH[j][i] = ppdH[i][j];
 						}
 					} // End j conditional
@@ -916,12 +908,12 @@ void Hamilt( UINT nStateType,
 					{
 						if(o==2) // S2
 						{
-							ppdH[i][j] += ( h1A2E / sqrt(2) ) * GCn1o6 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1));
+							ppdH[i][j] += (h1A2E / sqrt(2)) * GCn1o6 * Fpp(N, K);
 							ppdH[j][i] = ppdH[i][j];
 						}
 						if(o==3) // S3
 						{
-							ppdH[i][j] += ( h1A2E / sqrt(2) ) * GC7o6 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1));
+							ppdH[i][j] += (h1A2E / sqrt(2)) * GC7o6 * Fpp(N, K);
 							ppdH[j][i] = ppdH[i][j];
 						}
 					} // End j conditional
@@ -936,12 +928,12 @@ void Hamilt( UINT nStateType,
 					{
 						if(o==2) // S2
 						{
-							ppdH[i][j] += ( 2 * h1A1E + h1EE ) / 3 * GCn2o3 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1));
+							ppdH[i][j] += (2 * h1A1E + h1EE) / 3 * GCn2o3 * Fpp(N, K);
 							ppdH[j][i] = ppdH[i][j];
 						}
 						if(o==3) // S3
 						{
-							ppdH[i][j] += ( ( h1A1E - h1EE ) / 3 ) * GCn1o1 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1));
+							ppdH[i][j] += ((h1A1E - h1EE) / 3) * GCn1o1 * Fpp(N, K);
 							ppdH[j][i] = ppdH[i][j];
 						}
 					} // End j conditional
@@ -956,7 +948,7 @@ void Hamilt( UINT nStateType,
 					{
 						if(o==3) // S3
 						{
-							ppdH[i][j] += ( 2 * h1A1E + h1EE ) / 3 * GC2o3 * sqrt( N * (N + 1) - (K - 1) * (K - 2)) * sqrt( N * (N + 1) - K * (K - 1));
+							ppdH[i][j] += (2 * h1A1E + h1EE) / 3 * GC2o3 * Fpp(N, K);
 							ppdH[j][i] = ppdH[i][j];
 						}
 					} // End j conditional
@@ -974,26 +966,26 @@ void Hamilt( UINT nStateType,
 					{
 						if(o==0) // S1
 						{
-							ppdH[i][j] += ( 2 * h1A1E + h1EE ) / 3 * sqrt(N * (N + 1) - (K + 1) * (K + 2)) * sqrt(N * (N + 1) - K * (K + 1)) // N-^2
-								+ ( CA1 + 2 * CE ) / 3 * (K + 2) * (K + 1); // Nz^2
+							ppdH[i][j] += (2 * h1A1E + h1EE) / 3 * Fmm(N, K)  // N-^2
+								+ (CA1 + 2 * CE) / 3 * Fzz(N, K); // Nz^2
 							ppdH[j][i] = ppdH[i][j];
 						}
 						if(o==1) // A2
 						{
-							ppdH[i][j] += h1A2E / sqrt(2) * G1o2 * sqrt(N * (N + 1) - (K + 1) * (K + 2)) * sqrt(N * (N + 1) - K * (K + 1))
+							ppdH[i][j] += h1A2E / sqrt(2) * G1o2 * Fmm(N, K)
 								;
 							ppdH[j][i] = ppdH[i][j];
 						}
 						if(o==2) // S2
 						{
-							ppdH[i][j] += ( ( h1A1E - h1EE ) / 3 ) * Gn1o3 * sqrt(N * (N + 1) - (K + 1) * (K + 2)) * sqrt(N * (N + 1) - K * (K + 1))
-								+ (CA1 - CE) * (K + 2) * (K + 1);
+							ppdH[i][j] += ((h1A1E - h1EE) / 3) * Gn1o3 * Fmm(N, K)
+								+ (CA1 - CE) * Fzz(N, K);
 							ppdH[j][i] = ppdH[i][j];
 						}
 						if(o==3) // S3
 						{
-							ppdH[i][j] += ( ( h1A1E - h1EE ) / 3 ) * G1o3 * sqrt(N * (N + 1) - (K + 1) * (K + 2)) * sqrt(N * (N + 1) - K * (K + 1))
-								+ (CA1 - CE) * (K + 2) * (K + 1);
+							ppdH[i][j] += ((h1A1E - h1EE) / 3) * G1o3 * Fmm(N, K)
+								+ (CA1 - CE) * Fzz(N, K);
 							ppdH[j][i] = ppdH[i][j];
 						}
 					} // End j conditional
@@ -1009,18 +1001,18 @@ void Hamilt( UINT nStateType,
 						if (o == 1) // A2
 						{
 							ppdH[i][j] +=
-								CA2 * (K + 2) * (K + 1);
+								CA2 * Fzz(N, K);
 							ppdH[j][i] = ppdH[i][j];
 						}
 						if(o==2) // S2
 						{
-							ppdH[i][j] += ( h1A2E / sqrt(2) ) * Gn1o6 * sqrt(N * (N + 1) - (K + 1) * (K + 2)) * sqrt(N * (N + 1) - K * (K + 1))
+							ppdH[i][j] += (h1A2E / sqrt(2)) * Gn1o6 * Fmm(N, K)
 								;
 							ppdH[j][i] = ppdH[i][j];
 						}
 						if(o==3) // S3
 						{
-							ppdH[i][j] += ( h1A2E / sqrt(2) ) * G7o6 * sqrt(N * (N + 1) - (K + 1) * (K + 2)) * sqrt(N * (N + 1) - K * (K + 1))
+							ppdH[i][j] += (h1A2E / sqrt(2)) * G7o6 * Fmm(N, K)
 								;
 							ppdH[j][i] = ppdH[i][j];
 						}
@@ -1036,14 +1028,14 @@ void Hamilt( UINT nStateType,
 					{
 						if(o==2) // S2
 						{
-							ppdH[i][j] += ( 2 * h1A1E + h1EE ) / 3 * Gn2o3 * sqrt(N * (N + 1) - (K + 1) * (K + 2)) * sqrt(N * (N + 1) - K * (K + 1))
-								+ ( CA1 + 2 * CE ) / 3 * (K + 2) * (K + 1);
+							ppdH[i][j] += (2 * h1A1E + h1EE) / 3 * Gn2o3 * Fmm(N, K)
+								+ (CA1 + 2 * CE) / 3 * Fzz(N, K);
 							ppdH[j][i] = ppdH[i][j];
 						}
 						if(o==3) // S3
 						{
-							ppdH[i][j] += ( ( h1A1E - h1EE ) / 3 ) * Gn1o1 * sqrt(N * (N + 1) - (K + 1) * (K + 2)) * sqrt(N * (N + 1) - K * (K + 1))
-								+ (CA1 - CE) * (K + 2) * (K + 1);
+							ppdH[i][j] += ((h1A1E - h1EE) / 3) * Gn1o1 * Fmm(N, K)
+								+ (CA1 - CE) * Fzz(N, K);
 							ppdH[j][i] = ppdH[i][j];
 						}
 					} // End j conditional
@@ -1058,8 +1050,8 @@ void Hamilt( UINT nStateType,
 					{
 						if(o==3) // S3
 						{
-							ppdH[i][j] += ( 2 * h1A1E + h1EE ) / 3 * G2o3 * sqrt(N * (N + 1) - (K + 1) * (K + 2)) * sqrt(N * (N + 1) - K * (K + 1))
-								+ (CA1 + 2 * CE) / 3 * (K + 2) * (K + 1);
+							ppdH[i][j] += (2 * h1A1E + h1EE) / 3 * G2o3 * Fmm(N, K)
+								+ (CA1 + 2 * CE) / 3 * Fzz(N, K);
 							ppdH[j][i] = ppdH[i][j];
 						}
 					} // End j conditional
